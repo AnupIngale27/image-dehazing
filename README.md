@@ -211,8 +211,9 @@ cd frontend && npm install && npm start   # React frontend
 
 ## Team
 
-- [Name] — [Roll number]
-- [Name] — [Roll number]
+- Ingale Anup Arjun — 264152004
+- Shubham Koli — 264152014
+- Sejal Patel — 264152028
 
 **Links:** [Presentation](<link>) · [Video demo](<link>)
 
