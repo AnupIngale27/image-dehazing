@@ -1,0 +1,12 @@
+# Large / downloaded files — not stored in the repo
+*.pth
+*.zip
+*.mp4
+fog_dataset/
+nh/
+Restormer/
+restormer_arch.py
+cloudflared
+cf.log
+__pycache__/
+.ipynb_checkpoints/
