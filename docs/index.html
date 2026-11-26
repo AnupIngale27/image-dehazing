@@ -1,2 +1,266 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ClearView – Fog Remover</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f8ff;--glass:rgba(255,255,255,.72);--line:rgba(60,90,150,.16);--text:#1b2740;--muted:#5b6b86;--a:#4a90ff;--b:#7c8cff}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:linear-gradient(180deg,#eef5ff 0%,#f8fbff 55%,#ffffff 100%);color:var(--text);font-family:Inter,system-ui,sans-serif;overflow-x:hidden}
+.fog{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.fog i{position:absolute;border-radius:50%;filter:blur(80px);opacity:.55;animation:drift 18s ease-in-out infinite alternate}
+.fog i:nth-child(1){width:520px;height:520px;background:#bcd8ff;left:-120px;top:-120px}
+.fog i:nth-child(2){width:600px;height:600px;background:#d9ccff;right:-160px;top:20%;animation-duration:24s}
+.fog i:nth-child(3){width:480px;height:480px;background:#c3f1e6;left:30%;bottom:-220px;animation-duration:21s}
+@keyframes drift{to{transform:translate(60px,40px) scale(1.15)}}
+.wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:28px 20px 60px}
+nav{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.15rem}
+nav .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--a),var(--b));display:grid;place-items:center;box-shadow:0 6px 16px rgba(74,144,255,.35)}
+.hero{text-align:center;padding:56px 0 34px}
+.badge{display:inline-block;padding:6px 14px;border:1px solid var(--line);background:rgba(255,255,255,.8);border-radius:99px;font-size:.8rem;color:var(--muted)}
+h1{font-size:clamp(2.2rem,6vw,3.8rem);line-height:1.08;margin:18px 0 14px;font-weight:800;letter-spacing:-.02em;color:#17233d}
+h1 span{background:linear-gradient(90deg,#3b82f6,#8b7cf6,#14b8a6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{max-width:560px;margin:0 auto;color:var(--muted);font-size:1.05rem;line-height:1.6}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:22px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px rgba(60,100,180,.14)}
+.drop{border:2px dashed rgba(74,144,255,.45);border-radius:16px;padding:54px 18px;text-align:center;cursor:pointer;transition:.25s;background:rgba(255,255,255,.55)}
+.drop:hover,.drop.over{border-color:var(--a);background:rgba(74,144,255,.09);transform:translateY(-2px)}
+.drop .ic{font-size:2.6rem;margin-bottom:8px}
+.drop b{font-size:1.1rem}.drop p{color:var(--muted);margin:6px 0 0;font-size:.9rem}
+.cmp{position:relative;border-radius:16px;overflow:hidden;cursor:ew-resize;touch-action:none;user-select:none;background:#e6eefb;box-shadow:0 8px 28px rgba(60,100,180,.18)}
+.cmp img{display:block;width:100%;height:auto}
+.cmp img.after{position:absolute;inset:0;height:100%}
+.tag{position:absolute;top:12px;padding:4px 12px;border-radius:99px;background:rgba(20,30,55,.62);color:#fff;backdrop-filter:blur(6px);font-size:.75rem;font-weight:600}
+.tag.l{left:12px}.tag.r{right:12px}
+.handle{position:absolute;top:0;bottom:0;width:3px;background:#fff;transform:translateX(-50%);box-shadow:0 0 12px rgba(0,0,0,.35)}
+.handle b{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:#fff;color:#2b4a8a;display:grid;place-items:center;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.busy{position:absolute;inset:0;background:rgba(240,246,255,.82);backdrop-filter:blur(4px);display:grid;place-content:center;justify-items:center;gap:10px;font-weight:600;color:#1b2740;text-align:center;padding:16px}
+.busy small{font-weight:500;color:var(--muted)}
+.spin{width:46px;height:46px;border-radius:50%;border:4px solid rgba(74,144,255,.22);border-top-color:var(--a);animation:sp .9s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.pbar{width:220px;height:8px;border-radius:99px;background:rgba(74,144,255,.18);overflow:hidden}
+.pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--a),var(--b));transition:width .2s}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:16px}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.chip{padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:rgba(255,255,255,.8);font-size:.8rem;color:var(--muted)}
+.btns{display:flex;gap:10px}
+.btn{border:0;border-radius:12px;padding:11px 20px;font:600 .95rem Inter,sans-serif;cursor:pointer;text-decoration:none;color:#fff;background:linear-gradient(135deg,var(--a),var(--b));box-shadow:0 8px 20px rgba(74,144,255,.32);transition:.2s}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--text);box-shadow:none}
+.err{margin-top:14px;padding:12px 14px;border-radius:12px;background:#fff1f1;border:1px solid #f5b5b5;color:#b42323;font-size:.9rem}
+.note{margin-top:12px;color:var(--muted);font-size:.82rem;text-align:center}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:34px}
+.step{padding:20px}.step .n{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--a),var(--b));margin-bottom:12px}
+.step h3{margin:0 0 6px;font-size:1.05rem}.step p{margin:0;color:var(--muted);font-size:.92rem;line-height:1.55}
+footer{text-align:center;color:var(--muted);font-size:.82rem;margin-top:40px}
+footer a{color:var(--muted)}
+</style></head><body>
+<div class="fog"><i></i><i></i><i></i></div>
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.webgpu.min.js"></script>
+
+<script>
+/* ================== SETTINGS: edit these ================== */
+// Link to your ONNX model on Hugging Face (Files tab -> click the file -> copy the "download" link).
+// It must use /resolve/main/, not /blob/main/.
 const MODEL_URL = "https://huggingface.co/anupingale1/clearview-model/resolve/main/clearview_512.onnx";
+const TILE = 512;              // must match the size used when exporting the ONNX model
+const OVERLAP = 48;            // overlap between tiles, hides seams
+const MAX_SIDE_GPU = 1024;     // largest image side when WebGPU is available
+const MAX_SIDE_CPU = 512;      // largest image side on CPU (slow)
 const GITHUB_URL = "https://github.com/AnupIngale27/image-dehazing";
+/* ========================================================== */
+
+ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/";
+
+let sessionPromise = null, engine = null;
+
+async function downloadModel(onProgress){
+  const r = await fetch(MODEL_URL);
+  if(!r.ok) throw new Error("Could not download the model (" + r.status + "). Check MODEL_URL.");
+  const total = +r.headers.get("content-length") || 0;
+  const reader = r.body.getReader(); const parts = []; let got = 0;
+  for(;;){
+    const {done, value} = await reader.read(); if(done) break;
+    parts.push(value); got += value.length;
+    onProgress(total ? got / total : 0, got);
+  }
+  const buf = new Uint8Array(got); let o = 0;
+  for(const p of parts){ buf.set(p, o); o += p.length; }
+  return buf;
+}
+
+async function hasWebGPU(){
+  try{ return !!(navigator.gpu && await navigator.gpu.requestAdapter()); }catch(e){ return false; }
+}
+
+function getSession(onProgress){
+  if(!sessionPromise){
+    sessionPromise = (async () => {
+      const bytes = await downloadModel(onProgress);
+      if(await hasWebGPU()){
+        try{
+          const s = await ort.InferenceSession.create(bytes, {executionProviders:["webgpu"]});
+          engine = "GPU (WebGPU)"; return s;
+        }catch(e){ console.warn("WebGPU failed, using CPU", e); }
+      }
+      ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 2) : 1;
+      const s = await ort.InferenceSession.create(bytes, {executionProviders:["wasm"]});
+      engine = "CPU (WebAssembly)"; return s;
+    })();
+    sessionPromise.catch(() => { sessionPromise = null; });
+  }
+  return sessionPromise;
+}
+
+function tileStarts(n){
+  if(n <= TILE) return [0];
+  const step = TILE - OVERLAP, s = [];
+  for(let p = 0; p + TILE < n; p += step) s.push(p);
+  s.push(n - TILE);
+  return s;
+}
+
+// Runs the model over the image in overlapping 512x512 tiles and blends them.
+async function defogImage(img, onTile){
+  const sess = await getSession(() => {});
+  const max = engine.startsWith("GPU") ? MAX_SIDE_GPU : MAX_SIDE_CPU;
+  const sc = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const W = Math.max(1, Math.round(img.naturalWidth * sc)), H = Math.max(1, Math.round(img.naturalHeight * sc));
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  const ctx = cv.getContext("2d"); ctx.drawImage(img, 0, 0, W, H);
+  const src = ctx.getImageData(0, 0, W, H).data;
+
+  const N = W * H, acc = new Float32Array(3 * N), wsum = new Float32Array(N);
+  const xs = tileStarts(W), ys = tileStarts(H), T2 = TILE * TILE;
+  const ramp = new Float32Array(TILE);
+  for(let i = 0; i < TILE; i++) ramp[i] = Math.min(i + 1, TILE - i, OVERLAP) / OVERLAP;
+  const inp = new Float32Array(3 * T2);
+  let k = 0;
+  for(const y0 of ys) for(const x0 of xs){
+    onTile(++k, xs.length * ys.length);
+    await new Promise(r => setTimeout(r, 0));
+    for(let ty = 0; ty < TILE; ty++){
+      const sy = Math.min(H - 1, y0 + ty);
+      for(let tx = 0; tx < TILE; tx++){
+        const sx = Math.min(W - 1, x0 + tx), si = (sy * W + sx) * 4, ti = ty * TILE + tx;
+        inp[ti] = src[si] / 255; inp[T2 + ti] = src[si + 1] / 255; inp[2 * T2 + ti] = src[si + 2] / 255;
+      }
+    }
+    const res = await sess.run({[sess.inputNames[0]]: new ort.Tensor("float32", inp, [1, 3, TILE, TILE])});
+    const out = res[sess.outputNames[0]].data;
+    for(let ty = 0; ty < TILE && y0 + ty < H; ty++){
+      for(let tx = 0; tx < TILE && x0 + tx < W; tx++){
+        const w = ramp[ty] * ramp[tx], ti = ty * TILE + tx, di = (y0 + ty) * W + (x0 + tx);
+        acc[di] += out[ti] * w; acc[N + di] += out[T2 + ti] * w; acc[2 * N + di] += out[2 * T2 + ti] * w;
+        wsum[di] += w;
+      }
+    }
+  }
+  const outImg = ctx.createImageData(W, H), d = outImg.data;
+  const c = v => Math.max(0, Math.min(255, Math.round(v * 255)));
+  for(let i = 0; i < N; i++){
+    d[4*i] = c(acc[i] / wsum[i]); d[4*i+1] = c(acc[N+i] / wsum[i]); d[4*i+2] = c(acc[2*N+i] / wsum[i]); d[4*i+3] = 255;
+  }
+  ctx.putImageData(outImg, 0, 0);
+  const blob = await new Promise(r => cv.toBlob(r, "image/png"));
+  return {blob, W, H};
+}
+</script>
+
+<script type="text/babel">
+const {useState, useRef} = React;
+
+function Compare({before, after, busy}){
+  const box = useRef(null), drag = useRef(false);
+  const [pos, setPos] = useState(50);
+  const move = e => { const r = box.current.getBoundingClientRect(); setPos(Math.min(100, Math.max(0, (e.clientX - r.left) / r.width * 100))); };
+  return (
+    <div className="cmp" ref={box}
+      onPointerDown={e => { drag.current = true; e.currentTarget.setPointerCapture(e.pointerId); move(e); }}
+      onPointerMove={e => drag.current && move(e)} onPointerUp={() => drag.current = false}>
+      <img src={before} draggable="false" alt="Foggy"/>
+      {after && <img className="after" src={after} draggable="false" alt="Restored" style={{clipPath: `inset(0 0 0 ${pos}%)`}}/>}
+      {after && <><span className="tag l">Foggy</span><span className="tag r">Restored</span>
+        <div className="handle" style={{left: pos + "%"}}><b>⇆</b></div></>}
+      {busy && <div className="busy"><div className="spin"></div><div>{busy.title}</div>
+        {busy.p != null && <div className="pbar"><i style={{width: (busy.p * 100).toFixed(0) + "%"}}></i></div>}
+        {busy.sub && <small>{busy.sub}</small>}</div>}
+    </div>);
+}
+
+function App(){
+  const [before, setBefore] = useState(null), [after, setAfter] = useState(null);
+  const [busy, setBusy] = useState(null), [err, setErr] = useState(""), [info, setInfo] = useState(null), [over, setOver] = useState(false);
+  const input = useRef(null);
+
+  async function run(f){
+    if(!f || !f.type.startsWith("image/")){ setErr("Please choose an image file."); return; }
+    setErr(""); setAfter(null); setInfo(null);
+    const url = URL.createObjectURL(f); setBefore(url);
+    const im = new Image(); im.src = url;
+    try{
+      await im.decode();
+      setBusy({title: "Loading AI model…", p: 0, sub: "First time only (~105 MB), then it's cached"});
+      await getSession((p, got) => setBusy({title: "Loading AI model…", p, sub: (got / 1e6).toFixed(0) + " MB downloaded · first time only"}));
+      const t0 = performance.now();
+      const r = await defogImage(im, (k, n) => setBusy({title: "Removing fog…", p: n > 1 ? (k - 1) / n : null,
+        sub: (n > 1 ? `Part ${k} of ${n} · ` : "") + engine + (engine.startsWith("CPU") ? " · this can take a minute" : "")}));
+      setAfter(URL.createObjectURL(r.blob));
+      setInfo({s: ((performance.now() - t0) / 1000).toFixed(1), w: r.W, h: r.H, e: engine});
+    }catch(e){ console.error(e); setErr("Something went wrong: " + (e.message || e)); }
+    setBusy(null);
+  }
+  const reset = () => { setBefore(null); setAfter(null); setInfo(null); setErr(""); if(input.current) input.current.value = ""; };
+
+  return (
+    <div className="wrap">
+      <nav><div className="logo">🌫️</div>ClearView</nav>
+      <div className="hero">
+        <span className="badge">Powered by Restormer · runs entirely in your browser</span>
+        <h1>See through <span>the fog</span></h1>
+        <p className="sub">Upload a foggy photo and our deep-learning model restores contrast, detail and colour. Your photo never leaves your device.</p>
+      </div>
+
+      <div className="card">
+        {!before ? (
+          <div className={"drop" + (over ? " over" : "")} onClick={() => input.current.click()}
+            onDragOver={e => { e.preventDefault(); setOver(true); }} onDragLeave={() => setOver(false)}
+            onDrop={e => { e.preventDefault(); setOver(false); run(e.dataTransfer.files[0]); }}>
+            <div className="ic">☁️</div><b>Drop a foggy image here</b>
+            <p>or click to browse · JPG, PNG, WebP</p>
+          </div>
+        ) : (
+          <>
+            <Compare before={before} after={after} busy={busy}/>
+            <div className="bar">
+              <div className="stats">
+                {info && <><span className="chip">⏱ {info.s}s</span><span className="chip">🖼 {info.w}×{info.h}</span><span className="chip">⚙️ {info.e}</span></>}
+                {after && <span className="chip">Drag the slider to compare</span>}
+              </div>
+              <div className="btns">
+                <button className="btn ghost" onClick={reset} disabled={!!busy}>New image</button>
+                {after && <a className="btn" href={after} download="defogged.png">Download</a>}
+              </div>
+            </div>
+          </>
+        )}
+        <input ref={input} type="file" accept="image/*" hidden onChange={e => run(e.target.files[0])}/>
+        {err && <div className="err">{err}</div>}
+        <p className="note">Works best in Chrome or Edge on a laptop/desktop (uses your GPU). On phones or other browsers it runs on the CPU and is slower.</p>
+      </div>
+
+      <div className="steps">
+        {[["Upload", "Drop in any foggy or hazy photo from your device."],
+          ["Restore", "A Transformer-based Restormer model removes haze and recovers detail, right in your browser."],
+          ["Compare", "Slide between the foggy and restored versions, then download."]].map((s, i) =>
+          <div className="card step" key={i}><div className="n">{i + 1}</div><h3>{s[0]}</h3><p>{s[1]}</p></div>)}
+      </div>
+      <footer>AI-Based Noise Removal in Foggy Images · Restormer · <a href={GITHUB_URL}>Code on GitHub</a></footer>
+    </div>);
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script></body></html>
