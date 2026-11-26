@@ -215,7 +215,7 @@ cd frontend && npm install && npm start   # React frontend
 - Shubham Koli — 264152014
 - Sejal Patel — 264152028
 
-**Links:** [Presentation](Fog_Removal_Restormer.pptx) · [Video demo](<link>)
+**Links:** [Presentation](presentation/Fog_Removal_Restormer.pptx) · [Video demo](https://www.youtube.com/watch?v=rM7LtnOivsk)
 
 ## Acknowledgements
 
