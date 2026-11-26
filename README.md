@@ -1,12 +1,24 @@
 # Noise and Fog Removal from Single Images using Restormer
 
-Single-image fog and noise removal with **Restormer**, fine-tuned on **NH-HAZE** using a Charbonnier + frequency-domain (FFT) loss. The project includes a physics-based synthetic fog generator and a Flask + React web app with a before/after comparison slider.
+Single-image fog and noise removal with **Restormer**, fine-tuned on **NH-HAZE** using a Charbonnier + frequency-domain (FFT) loss. The project includes a physics-based synthetic fog generator and **[ClearView](https://anupingale27.github.io/image-dehazing/)**, a web app that runs the model directly in the browser, with a before/after comparison slider.
 
 > EE5340 Course Project (2026) · Faculty Advisor: Prof. Prithwijit Guha
 
 | Foggy input | Restored output |
 |:---:|:---:|
 | ![Foggy](assets/foggy.png) | ![Restored](assets/restored.png) |
+
+## 🔗 Quick Links
+
+| | |
+|---|---|
+| 🌐 **Live web app (ClearView)** | **[https://anupingale27.github.io/image-dehazing/](https://anupingale27.github.io/image-dehazing/)** |
+| 🎬 **Demo video** | [Watch on YouTube](https://www.youtube.com/watch?v=rM7LtnOivsk) |
+| 🎤 **Presentation video** | [PASTE YouTube link] |
+| 📄 **Report** | [report/Fog_Removal_Project_Report.pdf](report/Fog_Removal_Project_Report.pdf) |
+| 📊 **Slides** | [presentation/Fog_Removal_Restormer.pptx](presentation/Fog_Removal_Restormer.pptx) |
+| 📓 **Notebook** | [Image_Dehazing.ipynb](Image_Dehazing.ipynb) |
+| 🧠 **Trained model** | [ONNX on Hugging Face](https://huggingface.co/anupingale1/clearview-model) · `best.pth`: [GitHub Release v1.0](https://github.com/AnupIngale27/image-dehazing/releases/tag/v1.0) |
 
 ---
 
@@ -18,6 +30,7 @@ Single-image fog and noise removal with **Restormer**, fine-tuned on **NH-HAZE**
 - [Results](#results)
 - [Web Application](#web-application)
 - [Getting Started](#getting-started)
+- [Repository Structure](#repository-structure)
 - [Limitations](#limitations)
 - [Future Work](#future-work)
 - [References](#references)
@@ -90,7 +103,7 @@ The Charbonnier loss is a smooth, outlier-robust L1; the FFT loss protects edges
 ### Synthetic fog generator
 
 Fog can be synthesised from clear images using the scattering model: a pseudo-depth map growing towards the horizon with smooth random variation, `β ∈ [0.8, 2.8]`, `A ∈ [0.7, 1.0]`, and Gaussian noise with `σ ≤ 0.02`.
-*Implemented, but switched off for the final reported run.*
+*Implemented, but switched off for the final reported run (set `SYNTHETIC = True` in the notebook to use it).*
 
 ---
 
@@ -101,6 +114,7 @@ Fog can be synthesised from clear images using the scattering model: a pseudo-de
 | [NH-HAZE](https://data.vision.ee.ethz.ch/cvl/ntire20/nh-haze/) (NTIRE 2020) | Real, non-homogeneous haze | 55 outdoor pairs | 53 train / 2 validation (seed 42) |
 
 No separate test set was used.
+The dataset is **not stored in this repository**. The notebook downloads it automatically.
 
 ---
 
@@ -130,6 +144,10 @@ Validation scores on the 2 held-out NH-HAZE pairs:
 
 ![Training curves](assets/training_curves.png)
 
+**Real foggy photo (not from NH-HAZE):**
+
+![Test result](assets/test_result.png)
+
 **Observations**
 - Training loss fell steadily from 0.232 to 0.083.
 - SSIM improved from 0.50 to about 0.60–0.63; LPIPS fell from 0.443 to about 0.33.
@@ -141,37 +159,71 @@ Validation scores on the 2 held-out NH-HAZE pairs:
 
 ## Web Application
 
-- **Backend:** Flask. Loads `best.pth` on the GPU, receives an uploaded image and returns the restored PNG.
-- **Frontend:** React. Drag-and-drop upload, loading indicator, before/after comparison slider and download button.
-- Large images are resized to at most 1024 px on the long side to fit in GPU memory.
+**[ClearView](https://anupingale27.github.io/image-dehazing/)** lets anyone upload a foggy photo, compare it with the restored result using a slider, and download it. It runs **entirely in the browser**: no server, and photos never leave the user's device.
 
-<!-- Add a screenshot: ![Web app](assets/webapp.png) -->
+![Web app](assets/webapp.png)
+
+**How it works**
+- The trained model is exported to **ONNX** (`clearview_512.onnx`, 105 MB) and stored in a free [Hugging Face model repo](https://huggingface.co/anupingale1/clearview-model).
+- The page ([`docs/index.html`](docs/index.html), React) is hosted on **GitHub Pages**.
+- **ONNX Runtime Web** runs the model in the browser: on the GPU through **WebGPU** (Chrome/Edge), otherwise on the CPU through WebAssembly.
+- Images are processed in overlapping 512 × 512 tiles that are blended together, so larger photos work too (up to 1024 px on GPU, 512 px on CPU).
+
+| | Browser |
+|---|---|
+| First visit | Downloads the 105 MB model once (then cached) |
+| Chrome / Edge (WebGPU) | A few seconds per image |
+| Other browsers / phones (CPU) | Up to about a minute per image |
+
+The notebook also contains a Flask version (last cells) that runs on the Colab GPU with a temporary public link.
 
 ---
 
 ## Getting Started
 
-> Update the commands below to match the repository's file names.
+### Option 1: Just try it
+Open the **[live web app](https://anupingale27.github.io/image-dehazing/)** in Chrome or Edge and upload a foggy photo.
 
-```bash
-# Clone
-git clone <repo-url>
-cd <repo-name>
+### Option 2: Run the notebook (training + web app)
+1. Open [`Image_Dehazing.ipynb`](Image_Dehazing.ipynb) in [Google Colab](https://colab.research.google.com/).
+2. Go to **Runtime → Change runtime type → T4 GPU**.
+3. Run the cells in order:
 
-# Install dependencies
-pip install -r requirements.txt
+| Cells | What they do |
+|---|---|
+| 1 | Install packages, clone Restormer |
+| 2 | Settings (paths, patch size, epochs, learning rate) |
+| 3 | Download NH-HAZE and arrange it into `Foggy/` and `GT/` folders |
+| 4 | Pair images, train/validation split, data loaders, synthetic fog |
+| 5 | Build Restormer and load pretrained real-denoising weights |
+| 6 | Train for 150 epochs; saves `best.pth` and `last.pth` |
+| 7 | Test on your own uploaded images |
+| 8 | Free GPU memory |
+| 9–12 | Web app: write the page, start Flask, open a public link |
 
-# Download NH-HAZE and pretrained Restormer real-denoising weights,
-# then train
-python train.py
+**Skip training (~30 min):** download `best.pth` from the [Release](https://github.com/AnupIngale27/image-dehazing/releases/tag/v1.0), upload it to `/content/fog_checkpoints/best.pth` in Colab, run cell 1, then run cells 9–12.
 
-# Run inference on a single image
-python inference.py --input foggy.jpg --weights best.pth --output restored.png
+### Option 3: Host your own copy of the web app (free)
+1. After training, run the ONNX export cell from [`export_onnx_cell.py`](export_onnx_cell.py) at the end of the notebook. It checks the ONNX output against PyTorch and downloads `clearview_512.onnx`.
+2. Create a **public model repo** on [Hugging Face](https://huggingface.co/new) and upload `clearview_512.onnx`.
+3. In [`docs/index.html`](docs/index.html), set `MODEL_URL` to `https://huggingface.co/<username>/<repo>/resolve/main/clearview_512.onnx`.
+4. In your GitHub repo, go to **Settings → Pages → Deploy from a branch → `main` / `/docs`**.
 
-# Start the web app
-python app.py              # Flask backend
-cd frontend && npm install && npm start   # React frontend
+---
+
+## Repository Structure
+
 ```
+├── Image_Dehazing.ipynb      # training, testing and Flask web app (Colab)
+├── export_onnx_cell.py       # converts best.pth to ONNX for the browser app
+├── docs/
+│   └── index.html            # ClearView web app (served by GitHub Pages)
+├── assets/                   # images used in this README
+├── report/                   # project report (PDF, DOCX)
+└── presentation/             # slides (PPTX)
+```
+
+Not stored in the repo: the NH-HAZE dataset (downloaded by the notebook), the ONNX model ([Hugging Face](https://huggingface.co/anupingale1/clearview-model)), `best.pth` (attached to the [Release](https://github.com/AnupIngale27/image-dehazing/releases/tag/v1.0)), and the videos (on YouTube).
 
 ---
 
@@ -182,6 +234,7 @@ cd frontend && npm install && npm start   # React frontend
 - **Fog reduced, not removed:** distant background can still look hazy.
 - **Generalisation gap:** trained on only 53 images; real photos can differ greatly from NH-HAZE scenes.
 - **No baseline comparison** with Dark Channel Prior or other networks yet.
+- **Browser limits:** without WebGPU the app runs on the CPU (slow, images limited to 512 px); the first visit downloads a 105 MB model.
 
 ---
 
@@ -192,7 +245,7 @@ cd frontend && npm install && npm start   # React frontend
 3. Compare against Dark Channel Prior, pretrained Restormer without fine-tuning, DehazeFormer and NAFNet.
 4. Reduce artefacts and colour tint with a colour-consistency loss, stronger regularisation or early stopping.
 5. Speed up inference with fp16, `torch.compile` and TensorRT; tile large images instead of downscaling.
-6. Host the web app on a permanent server.
+6. Shrink the browser model (fp16 or int8 quantisation) for faster loading and mobile use.
 
 ---
 
@@ -211,12 +264,14 @@ cd frontend && npm install && npm start   # React frontend
 
 ## Team
 
-- Ingale Anup Arjun — 264152004
-- Shubham Koli — 264152014
-- Sejal Patel — 264152028
+| Name | Roll No. |
+|---|---|
+| Ingale Anup Arjun | 264152004 |
+| Shubham Koli | 264152014 |
+| Sejal Patel | 264152028 |
 
-**Links:** [Presentation](presentation/Fog_Removal_Restormer.pptx) · [Video demo](https://www.youtube.com/watch?v=rM7LtnOivsk)
+Faculty Advisor: Prof. Prithwijit Guha
 
 ## Acknowledgements
 
-Restormer architecture and pretrained weights from [swz30/Restormer](https://github.com/swz30/Restormer).
+Restormer architecture and pretrained weights from [swz30/Restormer](https://github.com/swz30/Restormer). NH-HAZE dataset from the NTIRE 2020 challenge.
