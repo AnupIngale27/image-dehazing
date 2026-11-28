@@ -14,7 +14,7 @@ Single-image fog and noise removal with **Restormer**, fine-tuned on **NH-HAZE**
 |---|---|
 | 🌐 **Live web app (ClearView)** | **[https://anupingale27.github.io/image-dehazing/](https://anupingale27.github.io/image-dehazing/)** |
 | 🎬 **Demo video** | [Watch on YouTube](https://youtu.be/eCUuU1nkbP8) |
-| 🎤 **Presentation video** | [PASTE YouTube link] |
+| 🎤 **Presentation video** | [Watch on Youtube](https://youtu.be/SokwFPxiluQ) |
 | 📄 **Report** | [report/Fog_Removal_Project_Report.pdf](report/Fog_Removal_Project_Report.pdf) |
 | 📊 **Slides** | [presentation/Fog_Removal_Restormer.pptx](presentation/Fog_Removal_Restormer.pptx) |
 | 📓 **Notebook** | [Image_Dehazing.ipynb](Image_Dehazing.ipynb) |
